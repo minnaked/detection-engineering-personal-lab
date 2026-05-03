@@ -1,0 +1,43 @@
+title: System Information Discovery via Systeminfo
+id: 3542e151-866d-4afc-935c-07686d44a75c
+status: experimental
+description: |
+    Detects system information discovery using systeminfo.exe.
+    Three detection layers:
+    1. Image field - standard execution
+    2. OriginalFileName - catches renamed binary (evasion resistant)
+    3. CommandLine - catches execution via cmd.exe scripts
+    
+    Attackers often run systeminfo after initial access to understand
+    the target environment before lateral movement.
+author: Mahesh Inna Kedage
+date: 2026/05/03
+references:
+    - https://attack.mitre.org/techniques/T1082/
+    - https://github.com/redcanaryco/atomic-red-team/tree/master/atomics/T1082
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    # Layer 1: Standard execution via image path
+    selection_image:
+        Image|endswith: '\systeminfo.exe'
+
+    # Layer 2: Renamed binary - originalFileName in PE header
+    # Cannot be changed without recompiling binary
+    selection_original:
+        OriginalFileName: 'sysinfo.exe'
+
+    # Layer 3: Execution via commandLine (catches cmd.exe wrappers)
+    selection_cmdline:
+        CommandLine|contains: 'systeminfo'
+
+    condition: selection_image or selection_original or selection_cmdline
+falsepositives:
+    - IT asset inventory scripts
+    - System monitoring tools
+    - Helpdesk diagnostic scripts
+level: medium
+tags:
+    - attack.discovery
+    - attack.t1082
