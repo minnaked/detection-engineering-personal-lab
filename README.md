@@ -11,7 +11,7 @@ Cisco) into Detection Engineering.
 This repo documents my hands-on detection engineering practice 
 using a home lab built from scratch.
 
-**Certifications in progress:** CySA+ | Post-hire: GCIA  
+**Certifications in progress:** CySA+ | GCIA | ZDTE
 **Core background:** CISSP, CCNA, CCNP(Switching), packet analysis, NDR/SIEM operations
 
 ---
@@ -35,13 +35,28 @@ using a home lab built from scratch.
 
 ## Detections Built
 
-| ID | Technique | MITRE | Severity | Status |
-|---|---|---|---|---|
-| 100002 | whoami.exe execution | T1033 | Medium (10) | ✅ Live |
-| 100003 | whoami from PowerShell | T1033 | High (12) | ✅ Live |
-| 100004 | Process Injection (0x1FFFFF) | T1055 | Critical (14) | ✅ Live |
+### MITRE ATT&CK Dashboard — May 3, 2026
+![MITRE ATT&CK Dashboard](detections/evidence/mitre-attack-dashboard-2026-05-03.png)
 
----
+## Live Detection Evidence
+### Custom Rules Firing in Production
+
+| Rule ID | MITRE | Tactic | Level | Technique | Status |
+|---|---|---|---|---|
+| 100002 | T1033 | Discovery | 10 | whoami execution | ✅ Live |
+| 100003 | T1033 | Discovery | 12 | whoami from PowerShell | ✅ Live |
+| 100004 | T1055 | Defense Evasion | 14 | Process injection | ✅ Live |
+| 100005 | T1082 | Discovery | 10 | systeminfo execution | ✅ Live |
+| 100006 | T1082 | Discovery | 10 | renamed binary evasion | ✅ Live |
+| 100007 | T1082 | Discovery | 10 | systeminfo via commandLine | ✅ Live |
+| 100008 | T1082 | Discovery | 12 | systeminfo from PowerShell | ✅ Live |
+
+### Detection Engineering Notes
+- Rule 100003/100008: High fidelity (level 12) — PowerShell parent 
+  indicates post-exploitation context, not normal admin activity
+- Rule 100006: Evasion-resistant — catches renamed systeminfo.exe 
+  using PE header originalFileName field
+- Rule 100007: Catches ART simulation where cmd.exe wraps systeminfo
 
 ## Python Tooling
 
