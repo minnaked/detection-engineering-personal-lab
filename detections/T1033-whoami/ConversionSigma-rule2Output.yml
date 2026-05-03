@@ -1,0 +1,19 @@
+# 1. Lucene (OpenSearch — your Wazuh indexer)
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t lucene -p wazuh-pipeline.yml .\Rule2PowershellWhoami-exe.yml
+Parsing Sigma rules  [####################################]  100%
+data.win.eventdata.image:*\\whoami.exe AND data.win.eventdata.parentImage:*\\powershell.exe
+
+# 2. Splunk SPL 
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t splunk -p splunk_windows .\Rule2PowershellWhoami-exe.yml
+Parsing Sigma rules  [####################################]  100%
+Image="*\\whoami.exe" ParentImage="*\\powershell.exe"
+
+3. EQL (Elastic Event Query Language)
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t eql -p ecs_windows .\Rule2PowershellWhoami-exe.yml
+Parsing Sigma rules  [####################################]  100%
+any where process.executable:"*\\whoami.exe" and process.parent.executable:"*\\powershell.exe"
+
+# 4. QRadar
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t qradar .\Rule2PowershellWhoami-exe.yml
+Parsing Sigma rules  [####################################]  100%
+SELECT UTF8(payload) as search_payload from events where "Image" ILIKE '%\whoami.exe' AND "ParentImage" ILIKE '%\powershell.exe'
