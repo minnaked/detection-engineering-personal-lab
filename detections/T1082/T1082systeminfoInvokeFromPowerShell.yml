@@ -1,0 +1,25 @@
+title: System Information Discovery from PowerShell - Post-Exploitation
+id: fc173d36-00d7-45d9-b5ef-41348f1dfc85
+status: experimental
+description: |
+    Detects systeminfo.exe spawned directly by PowerShell.
+    High confidence post-exploitation indicator — legitimate
+    admin tools rarely call systeminfo directly from PowerShell.
+author: Mahesh Inna Kedage
+date: 2026/05/03
+references:
+    - https://attack.mitre.org/techniques/T1082/
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith: '\systeminfo.exe'
+        ParentImage|endswith: '\powershell.exe'
+    condition: selection
+falsepositives:
+    - Rare legitimate PowerShell diagnostic scripts
+level: high
+tags:
+    - attack.discovery
+    - attack.t1082
