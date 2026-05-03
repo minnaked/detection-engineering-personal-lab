@@ -42,7 +42,7 @@ using a home lab built from scratch.
 ### Custom Rules Firing in Production
 
 | Rule ID | MITRE | Tactic | Level | Technique | Status |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | 100002 | T1033 | Discovery | 10 | whoami execution | ✅ Live |
 | 100003 | T1033 | Discovery | 12 | whoami from PowerShell | ✅ Live |
 | 100004 | T1055 | Defense Evasion | 14 | Process injection | ✅ Live |
