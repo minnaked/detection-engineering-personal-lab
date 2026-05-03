@@ -1,1 +1,22 @@
+# 1. Lucene (OpenSearch — your Wazuh indexer)
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t lucene -p wazuh-pipeline.yml myrule.yml
+Parsing Sigma rules  [####################################]  100%
+data.win.system.eventID:1 AND data.win.eventdata.image:*\\whoami.exe
+
+# 2. Splunk SPL 
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t splunk -p splunk_windows myrule.yml
+Parsing Sigma rules  [####################################]  100%
+source="WinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=1 Image="*\\whoami.exe"
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode>
+
+# 3. EQL (Elastic Event Query Language)
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t eql -p ecs_windows myrule.yml
+Parsing Sigma rules  [####################################]  100%
+any where winlog.channel:"Microsoft-Windows-Sysmon/Operational" and (event.code:"1" and process.executable:"*\\whoami.exe")
+
+# 4. QRadar
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t qradar myrule.yml
+Parsing Sigma rules  [####################################]  100%
+SELECT UTF8(payload) as search_payload from events where "EventID"=1 AND "Image" ILIKE '%\whoami.exe'
+
 
