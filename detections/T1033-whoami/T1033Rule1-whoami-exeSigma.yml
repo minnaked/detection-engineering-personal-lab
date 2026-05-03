@@ -1,0 +1,28 @@
+title: Whoami Execution - System Owner Discovery
+id: 424af5f2-d7bc-424b-b6d1-c034ffd7f653
+status: experimental
+description: |
+    Detects execution of whoami.exe which may indicate
+    an attacker performing system owner discovery after
+    initial access. Common in post-exploitation workflows.
+author: Mahesh Inna Kedage
+date: 2026/05/03
+references:
+    - https://attack.mitre.org/techniques/T1033/
+    - https://github.com/redcanaryco/atomic-red-team/tree/master/atomics/T1033
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        EventID: 1
+        Image|endswith: '\whoami.exe'
+    condition: selection
+falsepositives:
+    - Administrative scripts
+    - IT automation tools
+    - Legitimate system health checks
+level: medium
+tags:
+    - attack.discovery
+    - attack.t1033
