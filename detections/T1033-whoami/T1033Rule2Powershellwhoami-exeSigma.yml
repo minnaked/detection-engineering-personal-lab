@@ -1,0 +1,26 @@
+title: Whoami Execution from PowerShell - Post-Exploitation Indicator
+id: edd55072-5763-43ed-a5a2-946ef8e92680
+status: experimental
+description: |
+    Detects whoami.exe spawned by PowerShell.
+    PowerShell as parent process significantly increases
+    suspicion as legitimate admin tools rarely call whoami
+    from PowerShell. High confidence post-exploitation indicator.
+author: Mahesh Inna Kedage
+date: 2026/05/03
+references:
+    - https://attack.mitre.org/techniques/T1033/
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith: '\whoami.exe'
+        ParentImage|endswith: '\powershell.exe'
+    condition: selection
+falsepositives:
+    - Rare legitimate PowerShell admin scripts
+level: high
+tags:
+    - attack.discovery
+    - attack.t1033
