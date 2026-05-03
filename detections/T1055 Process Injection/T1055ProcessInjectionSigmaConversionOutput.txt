@@ -1,0 +1,19 @@
+#1 Wazuh
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t lucene -p .\wazuh-pipeline.yml .\T1055ProcessInjectionSigmaRule.yml
+Parsing Sigma rules  [####################################]  100%
+data.win.eventdata.grantedAccess:0x1FFFFF
+
+#2 Splunk
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t splunk -p splunk_windows .\T1055ProcessInjectionSigmaRule.yml
+Parsing Sigma rules  [####################################]  100%
+GrantedAccess="0x1FFFFF"
+
+#3 Elastic Query - ELQ
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t eql -p ecs_windows .\T1055ProcessInjectionSigmaRule.yml
+Parsing Sigma rules  [####################################]  100%
+any where winlog.event_data.GrantedAccess:"0x1FFFFF"
+
+#4 Qradar Query
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t qradar .\T1055ProcessInjectionSigmaRule.yml
+Parsing Sigma rules  [####################################]  100%
+SELECT UTF8(payload) as search_payload from events where "Granted Access"='0x1FFFFF'
