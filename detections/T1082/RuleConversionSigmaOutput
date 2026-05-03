@@ -1,0 +1,21 @@
+# 1. Wazuh
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t lucene -p .\wazuh-pipeline.yml .\T1082systeminfoThreeDetectionLayers.yml
+Parsing Sigma rules  [####################################]  100%
+data.win.eventdata.image:*\\systeminfo.exe OR OriginalFileName:sysinfo.exe OR data.win.eventdata.commandLine:*systeminfo*
+
+#2. Splunk
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t splunk -p splunk_windows .\T1082systeminfoThreeDetectionLayers.yml
+Parsing Sigma rules  [####################################]  100%
+Image="*\\systeminfo.exe" OR OriginalFileName="sysinfo.exe" OR CommandLine="*systeminfo*"
+
+#3 EQL - ElasticSearch
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t eql -p ecs_windows .\T1082systeminfoThreeDetectionLayers.yml
+Parsing Sigma rules  [####################################]  100%
+any where process.executable:"*\\systeminfo.exe" or process.pe.original_file_name:"sysinfo.exe" or process.command_line:"*systeminfo*"
+
+#4 QRadar
+PS C:\Users\raoso\Downloads\MaheshIK\PythonCode> sigma convert -t qradar .\T1082systeminfoThreeDetectionLayers.yml
+Parsing Sigma rules  [####################################]  100%
+SELECT UTF8(payload) as search_payload from events where "Image" ILIKE '%\systeminfo.exe' OR "ImageName"='sysinfo.exe' OR "Process CommandLine" ILIKE '%systeminfo%'
+  
+  
