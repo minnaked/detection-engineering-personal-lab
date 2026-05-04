@@ -1,24 +1,16 @@
 <!-- Local rules -->
 <!-- Modify it at your will. -->
 <!-- Copyright (C) 2015, Wazuh Inc. -->
+<!-- group tag is the root element in Wazuh rules -->
 
-<!-- SSH brute force rules -->
-<group name="local,syslog,sshd,">
+<group name="local,syslog,sshd,windows,sysmon,">
+
   <rule id="100001" level="5">
     <if_sid>5716</if_sid>
     <srcip>1.1.1.1</srcip>
     <description>sshd: authentication failed from IP 1.1.1.1.</description>
   </rule>
-</group>
 
-<group name="windows,sysmon,">
-
-  <!-- ══════════════════════════════════════════
-       T1033 — System Owner/User Discovery
-       Telemetry: Sysmon Event ID 1 (Process Create)
-       ══════════════════════════════════════════ -->
-
-  <!-- Base rule: whoami executed any method -->
   <rule id="100002" level="10">
     <if_group>windows</if_group>
     <field name="win.system.eventID">^1$</field>
@@ -30,71 +22,49 @@
     <group>sysmon_event1,discovery,t1033</group>
   </rule>
 
-  <!-- Child rule: whoami from PowerShell - post exploitation -->
   <rule id="100003" level="12">
     <if_sid>100002</if_sid>
     <field name="win.eventdata.parentImage" type="pcre2">(?i)powershell\.exe$</field>
-    <description>T1033 - whoami launched from PowerShell by $(win.eventdata.user) on $(win.system.computer) - post-exploitation indicator</description>
+    <description>T1033 - whoami from PowerShell by $(win.eventdata.user) on $(win.system.computer)</description>
     <mitre>
       <id>T1033</id>
     </mitre>
     <group>sysmon_event1,discovery,t1033,high_fidelity</group>
   </rule>
 
-  <!-- ══════════════════════════════════════════
-       T1055 — Process Injection
-       Telemetry: Sysmon Event ID 10 (ProcessAccess)
-       ══════════════════════════════════════════ -->
-
-  <!-- Full memory access granted - injection indicator -->
   <rule id="100004" level="14">
     <if_group>windows</if_group>
     <field name="win.system.eventID">^10$</field>
-    <field name="win.eventdata.grantedAccess" type="pcre2">0x1[Ff]{4}[Ff]{2}</field>
-    <description>T1055 - Process Injection: Full memory access (0x1FFFFF) granted from $(win.eventdata.sourceImage) into $(win.eventdata.targetImage) by $(win.eventdata.sourceUser)</description>
+    <field name="win.eventdata.grantedAccess" type="pcre2">(?i)0x1f1fff|0x1fffff|0x143a</field>
+    <description>T1055 - Process Injection: Memory access from $(win.eventdata.sourceImage) into $(win.eventdata.targetImage)</description>
     <mitre>
       <id>T1055</id>
     </mitre>
     <group>sysmon_event10,injection,t1055</group>
   </rule>
 
-  <!-- ══════════════════════════════════════════
-       T1082 — System Information Discovery
-       Telemetry: Sysmon Event ID 1 (Process Create)
-       Three detection layers:
-       1. image field        - standard execution
-       2. originalFileName   - renamed binary evasion
-       3. commandLine        - execution via cmd/scripts
-       ══════════════════════════════════════════ -->
-
-  <!-- Layer 1: image path match - standard execution -->
   <rule id="100005" level="10">
     <if_group>windows</if_group>
     <field name="win.system.eventID">^1$</field>
     <field name="win.eventdata.image" type="pcre2">(?i)\\systeminfo\.exe$</field>
-    <description>T1082 - System Information Discovery: systeminfo.exe executed by $(win.eventdata.user) on $(win.system.computer)</description>
+    <description>T1082 - System Information Discovery: systeminfo.exe by $(win.eventdata.user) on $(win.system.computer)</description>
     <mitre>
       <id>T1082</id>
     </mitre>
     <group>sysmon_event1,discovery,t1082</group>
   </rule>
 
-  <!-- Layer 2: originalFileName match - catches renamed binary -->
-  <!-- originalFileName is compiled into PE header - cannot be changed -->
-  <!-- Attacker copies systeminfo.exe as svchost32.exe - image changes but originalFileName stays sysinfo.exe -->
   <rule id="100006" level="10">
     <if_group>windows</if_group>
     <field name="win.system.eventID">^1$</field>
     <field name="win.eventdata.originalFileName" type="pcre2">(?i)sysinfo\.exe$</field>
-    <description>T1082 - System Information Discovery: systeminfo binary (possibly renamed) executed by $(win.eventdata.user) on $(win.system.computer)</description>
+    <description>T1082 - System Information Discovery: systeminfo renamed binary by $(win.eventdata.user) on $(win.system.computer)</description>
     <mitre>
       <id>T1082</id>
     </mitre>
     <group>sysmon_event1,discovery,t1082,evasion_resistant</group>
   </rule>
 
-  <!-- Layer 3: commandLine match - catches execution via cmd scripts -->
-  <!-- Example: cmd.exe /c systeminfo & reg query ... -->
   <rule id="100007" level="10">
     <if_group>windows</if_group>
     <field name="win.system.eventID">^1$</field>
@@ -106,15 +76,36 @@
     <group>sysmon_event1,discovery,t1082</group>
   </rule>
 
-  <!-- Child rule: systeminfo from PowerShell - higher severity -->
   <rule id="100008" level="12">
     <if_sid>100005</if_sid>
     <field name="win.eventdata.parentImage" type="pcre2">(?i)powershell\.exe$</field>
-    <description>T1082 - systeminfo launched from PowerShell by $(win.eventdata.user) on $(win.system.computer) - post-exploitation indicator</description>
+    <description>T1082 - systeminfo from PowerShell by $(win.eventdata.user) on $(win.system.computer)</description>
     <mitre>
       <id>T1082</id>
     </mitre>
     <group>sysmon_event1,discovery,t1082,high_fidelity</group>
+  </rule>
+
+  <rule id="100009" level="14">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^8$</field>
+    <description>T1055 - CreateRemoteThread from $(win.eventdata.sourceImage) into $(win.eventdata.targetImage) by $(win.eventdata.user)</description>
+    <mitre>
+      <id>T1055</id>
+      <id>T1055.001</id>
+    </mitre>
+    <group>sysmon_event8,injection,t1055,high_fidelity</group>
+  </rule>
+
+  <rule id="100010" level="15">
+    <if_sid>100009</if_sid>
+    <field name="win.eventdata.targetImage" type="pcre2">(?i)(lsass|svchost|explorer|winlogon)\.exe</field>
+    <description>T1055 - CRITICAL: CreateRemoteThread into sensitive process $(win.eventdata.targetImage) by $(win.eventdata.sourceImage)</description>
+    <mitre>
+      <id>T1055</id>
+      <id>T1055.001</id>
+    </mitre>
+    <group>sysmon_event8,injection,t1055,critical</group>
   </rule>
 
 </group>
