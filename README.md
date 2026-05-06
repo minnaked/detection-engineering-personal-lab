@@ -4,8 +4,7 @@ Home lab for detection engineering practice using Sysmon, Wazuh, and Python
 # Detection Engineering Home Lab
 
 ## About
-Built by Mahesh Inna Kedage — Looking to transition from 18+ years of 
-network/security support, test engineering (ExtraHop NDR, Riverbed, 
+18+ years of network/security support, test engineering (ExtraHop NDR, Riverbed, 
 Cisco) into Detection Engineering.
 
 This repo documents my hands-on detection engineering practice 
